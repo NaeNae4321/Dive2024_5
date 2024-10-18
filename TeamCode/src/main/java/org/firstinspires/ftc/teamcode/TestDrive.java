@@ -15,6 +15,8 @@ public class TestDrive extends LinearOpMode{
     SparkFunOTOS myOtos;
     @Override
     public void runOpMode() throws InterruptedException {
+        myOtos = hardwareMap.get(SparkFunOTOS.class, "sensor_otos");
+        configureOtos();
         // Declare our motors
         // Make sure your ID's match your configuration
         DcMotor frontLeftMotor = hardwareMap.dcMotor.get("frontLeftMotor");
@@ -38,10 +40,6 @@ public class TestDrive extends LinearOpMode{
         // Without this, the REV Hub's orientation is assumed to be logo up / USB forward
         imu.initialize(parameters);
 
-        myOtos = hardwareMap.get(SparkFunOTOS.class, "sensor_otos");
-
-        configureOtos();
-
         waitForStart();
 
         telemetry.clear();
@@ -51,14 +49,18 @@ public class TestDrive extends LinearOpMode{
         while (opModeIsActive()) {
 
             SparkFunOTOS.Pose2D pos = myOtos.getPosition();
+            SparkFunOTOS.Status OTOSstatus = myOtos.getStatus();
 
             telemetry.addData("X coordinate", pos.x);
             telemetry.addData("Y coordinate", pos.y);
             telemetry.addData("Heading angle", pos.h);
+            telemetry.addData("OTOS warnOpticalTracking", OTOSstatus.warnOpticalTracking);
+            telemetry.addData("OTOS warnTiltAngle", OTOSstatus.warnTiltAngle);
+            telemetry.addData("Heading for rev imu", imu.getRobotYawPitchRollAngles());
 
-            double y = -gamepad1.left_stick_y / 1.2; // Remember, Y stick value is reversed
-            double x = gamepad1.left_stick_x / 1.2;
-            double rx = gamepad1.right_stick_x / 1.5;
+            double y = -gamepad1.left_stick_y / 2; // Remember, Y stick value is reversed
+            double x = gamepad1.left_stick_x / 2;
+            double rx = gamepad1.right_stick_x / 2;
 
             // This button choice was made so that it is hard to hit on accident,
             // it can be freely changed based on preference.
@@ -118,7 +120,7 @@ public class TestDrive extends LinearOpMode{
         // clockwise (negative rotation) from the robot's orientation, the offset
         // would be {-5, 10, -90}. These can be any value, even the angle can be
         // tweaked slightly to compensate for imperfect mounting (eg. 1.3 degrees).
-        SparkFunOTOS.Pose2D offset = new SparkFunOTOS.Pose2D(0, 0, 0);
+        SparkFunOTOS.Pose2D offset = new SparkFunOTOS.Pose2D(4.25, -1.375, 0);
         myOtos.setOffset(offset);
 
         // Here we can set the linear and angular scalars, which can compensate for
@@ -137,8 +139,8 @@ public class TestDrive extends LinearOpMode{
         // multiple speeds to get an average, then set the linear scalar to the
         // inverse of the error. For example, if you move the robot 100 inches and
         // the sensor reports 103 inches, set the linear scalar to 100/103 = 0.971
-        myOtos.setLinearScalar(1.0);
-        myOtos.setAngularScalar(1.0);
+        myOtos.setLinearScalar(100/94.4);
+        myOtos.setAngularScalar(3600.0 /3630.0);
 
         // The IMU on the OTOS includes a gyroscope and accelerometer, which could
         // have an offset. Note that as of firmware version 1.0, the calibration
