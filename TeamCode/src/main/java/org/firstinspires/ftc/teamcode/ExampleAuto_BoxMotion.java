@@ -57,19 +57,19 @@ public class ExampleAuto_BoxMotion extends OpMode {
     public void buildPaths() {
         line1 = new Path(new BezierLine(new Point(startPose), new Point(corner2)));
         line1.setLinearHeadingInterpolation(startPose.getHeading(), corner2.getHeading());
-        //line1.setPathEndTimeoutConstraint(0);
+        line1.setPathEndTimeoutConstraint(0);
 
         line2 = new Path(new BezierLine(new Point(corner2), new Point(corner3)));
         line2.setLinearHeadingInterpolation(corner2.getHeading(), corner3.getHeading());
-        //line2.setPathEndTimeoutConstraint(0);
+        line2.setPathEndTimeoutConstraint(0);
 
         line3 = new Path(new BezierLine(new Point(corner3), new Point(corner4)));
         line3.setLinearHeadingInterpolation(corner3.getHeading(), corner4.getHeading());
-        //line3.setPathEndTimeoutConstraint(0);
+        line3.setPathEndTimeoutConstraint(0);
 
         line4 = new Path(new BezierLine(new Point(corner4), new Point(startPose)));
         line4.setLinearHeadingInterpolation(corner4.getHeading(), startPose.getHeading());
-        //line4.setPathEndTimeoutConstraint(0);
+        line4.setPathEndTimeoutConstraint(0);
 
         /** There are two major types of paths components: BezierCurves and BezierLines.
          *    * BezierCurves are curved, and require > 3 points. There are the start and end points, and the control points.
@@ -98,33 +98,79 @@ public class ExampleAuto_BoxMotion extends OpMode {
      * The followPath() function sets the follower to run the specific path, but does NOT wait for it to finish before moving on. **/
     public void autonomousPathUpdate() {
         switch (pathState) {
-            case 1:
+            case 10:
                 setActionState(0);
-                follower.followPath(line1);
+                follower.followPath(line1, true);
                 setPathState(12);
                 break;
-            case 2:
-                //if (pathTimer.getElapsedTimeSeconds() > 2.6) {
-                //    setPathState(12);
-                //}
-                follower.followPath(line2);
-                setPathState(13);
+            case 11:
+                if(!follower.isBusy())
+                {
+                    follower.holdPoint(corner2);
+                    setPathState(12);
+                }
                 break;
-            case 3:
-                follower.followPath(line3);
-                setPathState(14);
+            case 12:
+                if(gamepad1.a && !follower.isBusy())
+                {
+                    setPathState(20);
+                }
                 break;
-            case 4:
-                follower.followPath(line4);
-                setPathState(11);
+            case 20:
+                follower.followPath(line2, true);
+                setPathState(22);
+                break;
+            case 21:
+                if(!follower.isBusy())
+                {
+                    follower.holdPoint(corner3);
+                    setPathState(22);
+                }
+                break;
+            case 22:
+                if(gamepad1.a && !follower.isBusy())
+                {
+                    setPathState(30);
+                }
+                break;
+            case 30:
+                follower.followPath(line3, true);
+                setPathState(32);
+                break;
+            case 31:
+                if(!follower.isBusy())
+                {
+                    follower.holdPoint(corner4);
+                    setPathState(32);
+                }
+                break;
+            case 32:
+                if(gamepad1.a && !follower.isBusy())
+                {
+                    setPathState(40);
+                }
+                break;
+            case 40:
+                follower.followPath(line4, true);
+                setPathState(42);
+                break;
+            case 41:
+                if(!follower.isBusy())
+                {
+                    follower.holdPoint(startPose);
+                    setPathState(42);
+                }
+                break;
+            case 42:
+                if(gamepad1.a && !follower.isBusy())
+                {
+                    setPathState(10);
+                }
                 break;
         }
-        if (pathState>=11 && pathState<=14){
-            if(gamepad1.a && !follower.isBusy())
-            {
-                setPathState(pathState-10);
-            }
-        }
+        //if (pathTimer.getElapsedTimeSeconds() > 2.6) {
+        //    setPathState(12);
+        //}
     }
 
     /** This switch is called continuously and runs the necessary actions, when finished, it will set the state to -1.
@@ -186,6 +232,7 @@ public class ExampleAuto_BoxMotion extends OpMode {
         telemetry.addData("x", follower.getPose().getX());
         telemetry.addData("y", follower.getPose().getY());
         telemetry.addData("heading", follower.getPose().getHeading());
+        telemetry.addData("follower is busy", follower.isBusy());
         telemetry.update();
     }
 
@@ -199,7 +246,7 @@ public class ExampleAuto_BoxMotion extends OpMode {
         opmodeTimer.resetTimer();
 
         follower = new Follower(hardwareMap);
-        follower.setStartingPose(startPose);
+        follower.setStartingPose(corner3);
     }
 
     /** This method is called continuously after Init while waiting for "play". **/
@@ -217,7 +264,7 @@ public class ExampleAuto_BoxMotion extends OpMode {
     public void start() {
         buildPaths();
         opmodeTimer.resetTimer();
-        setPathState(11);
+        setPathState(22);
         setActionState(0);
     }
 

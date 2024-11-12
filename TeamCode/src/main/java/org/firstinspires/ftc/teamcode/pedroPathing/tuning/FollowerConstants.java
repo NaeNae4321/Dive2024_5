@@ -38,7 +38,7 @@ public class FollowerConstants {
 
     // Translational PIDF coefficients (don't use integral)
     public static CustomPIDFCoefficients translationalPIDFCoefficients = new CustomPIDFCoefficients(
-            0.05,
+            0.1,
             0,
             0,
             0);
@@ -104,7 +104,7 @@ public class FollowerConstants {
     // Decreasing this will cause the deceleration at the end of the Path to be slower, making the
     // robot slower but reducing risk of end-of-path overshoots or localization slippage.
     // This can be set individually for each Path, but this is the default.
-    public static double zeroPowerAccelerationMultiplier = 4;
+    public static double zeroPowerAccelerationMultiplier = 3;
 
 
     // When the robot is at the end of its current Path or PathChain and the velocity goes below
@@ -165,9 +165,9 @@ public class FollowerConstants {
 
     // Secondary translational PIDF coefficients (don't use integral)
     public static CustomPIDFCoefficients secondaryTranslationalPIDFCoefficients = new CustomPIDFCoefficients(
-            0.3,
+            0.1,
             0,
-            0.01,
+            0,
             0);
 
     // Secondary translational Integral value
@@ -178,7 +178,7 @@ public class FollowerConstants {
             0);
 
     // Feed forward constant added on to the small translational PIDF
-    public static double secondaryTranslationalPIDFFeedForward = 0.015;
+    public static double secondaryTranslationalPIDFFeedForward = 0;
 
 
     // the limit at which the heading PIDF switches between the main and secondary heading PIDFs
@@ -186,9 +186,9 @@ public class FollowerConstants {
 
     // Secondary heading error PIDF coefficients
     public static CustomPIDFCoefficients secondaryHeadingPIDFCoefficients = new CustomPIDFCoefficients(
-            5,
+            1,
             0,
-            0.08,
+            0.04,
             0);
 
     // Feed forward constant added on to the secondary heading PIDF
