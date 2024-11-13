@@ -94,6 +94,7 @@ public class Follower {
     private boolean teleopDrive;
 
     private double maxPower = 1;
+    public static double maxDiffAvePower = 0.02;
     private double previousSecondaryTranslationalIntegral;
     private double previousTranslationalIntegral;
     private double holdPointTranslationalScaling = FollowerConstants.holdPointTranslationalScaling;
@@ -201,11 +202,27 @@ public class Follower {
      * This handles the limiting of the drive powers array to the max power.
      */
     public void limitDrivePowers() {
-        for (int i = 0; i < drivePowers.length; i++) {
-            if (Math.abs(drivePowers[i]) > maxPower) {
-                drivePowers[i] = maxPower * MathFunctions.getSign(drivePowers[i]);
+        double avePrevPower = (Math.abs(motors.get(0).getPower()) + Math.abs(motors.get(1).getPower()) + Math.abs(motors.get(2).getPower()) + Math.abs(motors.get(3).getPower()))/4;
+        double aveCmdPower = (Math.abs(drivePowers[0]) + Math.abs(drivePowers[1]) + Math.abs(drivePowers[2]) + Math.abs(drivePowers[3]))/4;
+        if ((aveCmdPower - avePrevPower) > maxDiffAvePower) {
+            for (int i = 0; i < drivePowers.length; i++) {
+                drivePowers[i] = drivePowers[i] * maxDiffAvePower/aveCmdPower + motors.get(i).getPower();
             }
         }
+
+        double driveMaxPower = Math.max(Math.max(Math.abs(drivePowers[0]), Math.abs(drivePowers[1])), Math.max(Math.abs(drivePowers[2]), Math.abs(drivePowers[3])));
+        if (driveMaxPower > maxPower) {
+            drivePowers[0] /= (maxPower/driveMaxPower);
+            drivePowers[1] /= (maxPower/driveMaxPower);
+            drivePowers[2] /= (maxPower/driveMaxPower);
+            drivePowers[3] /= (maxPower/driveMaxPower);
+        }
+
+//        for (int i = 0; i < drivePowers.length; i++) {
+//            if (Math.abs(drivePowers[i]) > maxPower) {
+//                drivePowers[i] = maxPower * MathFunctions.getSign(drivePowers[i]);
+//            }
+//        }
     }
 
     /**
@@ -731,12 +748,18 @@ public class Follower {
         Vector forwardHeadingVector = new Vector(1.0, poseUpdater.getPose().getHeading());
         double forwardVelocity = MathFunctions.dotProduct(forwardHeadingVector, velocity);
         double forwardDistanceToGoal = MathFunctions.dotProduct(forwardHeadingVector, distanceToGoalVector);
+
+        if(forwardDistanceToGoal < 0) forwardZeroPowerAcceleration *= -1;
+
         double forwardVelocityGoal = MathFunctions.getSign(forwardDistanceToGoal) * Math.sqrt(Math.abs(-2 * currentPath.getZeroPowerAccelerationMultiplier() * forwardZeroPowerAcceleration * forwardDistanceToGoal));
         double forwardVelocityZeroPowerDecay = forwardVelocity - MathFunctions.getSign(forwardDistanceToGoal) * Math.sqrt(Math.abs(Math.pow(forwardVelocity, 2) + 2 * forwardZeroPowerAcceleration * forwardDistanceToGoal));
 
         Vector lateralHeadingVector = new Vector(1.0, poseUpdater.getPose().getHeading() - Math.PI / 2);
         double lateralVelocity = MathFunctions.dotProduct(lateralHeadingVector, velocity);
         double lateralDistanceToGoal = MathFunctions.dotProduct(lateralHeadingVector, distanceToGoalVector);
+
+        if(lateralDistanceToGoal < 0) lateralZeroPowerAcceleration *= -1;
+
         double lateralVelocityGoal = MathFunctions.getSign(lateralDistanceToGoal) * Math.sqrt(Math.abs(-2 * currentPath.getZeroPowerAccelerationMultiplier() * lateralZeroPowerAcceleration * lateralDistanceToGoal));
         double lateralVelocityZeroPowerDecay = lateralVelocity - MathFunctions.getSign(lateralDistanceToGoal) * Math.sqrt(Math.abs(Math.pow(lateralVelocity, 2) + 2 * lateralZeroPowerAcceleration * lateralDistanceToGoal));
 

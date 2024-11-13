@@ -246,7 +246,7 @@ public class ExampleAuto_BoxMotion extends OpMode {
         opmodeTimer.resetTimer();
 
         follower = new Follower(hardwareMap);
-        follower.setStartingPose(corner3);
+        follower.setStartingPose(startPose);
     }
 
     /** This method is called continuously after Init while waiting for "play". **/
@@ -264,7 +264,7 @@ public class ExampleAuto_BoxMotion extends OpMode {
     public void start() {
         buildPaths();
         opmodeTimer.resetTimer();
-        setPathState(22);
+        setPathState(42);
         setActionState(0);
     }
 
