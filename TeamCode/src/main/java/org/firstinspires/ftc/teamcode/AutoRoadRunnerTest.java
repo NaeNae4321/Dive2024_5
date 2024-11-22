@@ -23,7 +23,11 @@ public class AutoRoadRunnerTest extends LinearOpMode {
 
             Actions.runBlocking(
                     drive.actionBuilder(beginPose)
-                            .splineTo(new Vector2d(90, 90),Math.PI / 2)
+                            .splineToConstantHeading(new Vector2d(0.0, 90.0), -Math.PI / 2)
+                            .turn(2 * Math.PI)
+                            .lineToXConstantHeading(-10.0)
+                            .strafeTo(new Vector2d(-10.0, 0.0) )
+                            .lineToXConstantHeading(0.0)
                             .build());
 
         }
